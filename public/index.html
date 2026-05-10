@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Pac-Minder</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <!-- Supplementary CSS: .locked strikethrough, avatar helpers, canvas hints -->
+    <link rel="stylesheet" href="style.css"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: { background: "#f9f9f9", primary: "#000000", surface: "#ffffff", "on-primary": "#ffffff", "surface-container-lowest": "#ffffff", "surface-container-low": "#f3f3f3" },
+                    borderRadius: { DEFAULT: "0px", lg: "0px", xl: "0px", full: "9999px" },
+                    fontFamily: {
+                        "headline-lg": ["Press Start 2P", "system-ui"],
+                        "body-md": ["Space Grotesk", "sans-serif"],
+                        "label-caps": ["Space Grotesk", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        body { min-height: max(884px, 100dvh); }
+    </style>
+</head>
+<body class="bg-background text-primary font-body-md min-h-screen flex flex-col justify-between">
+
+    <!-- ================= 1. MAIN MENU ================= -->
+    <main id="menu-screen" class="w-full max-w-[400px] mx-auto border-primary flex-grow flex flex-col justify-center py-20 px-6">
+        <header class="text-center mb-24">
+            <h1 class="font-headline-lg text-[24px] text-primary mb-2 font-['Press_Start_2P']" style="font-family: 'Press Start 2P', system-ui; text-rendering: pixelated;">PAC-MINDER</h1>
+        </header>
+        <section class="flex flex-col gap-12">
+            <div class="flex flex-col gap-2">
+                <button id="btn-host" class="w-full border border-primary bg-primary text-on-primary font-label-caps text-[14px] font-bold py-4 px-6 hover:bg-background hover:text-primary transition-none tracking-widest">
+                    HOST GAME
+                </button>
+            </div>
+            <div class="flex items-center gap-4 my-2">
+                <div class="h-px bg-primary flex-1"></div>
+                <span class="font-label-caps text-[12px] font-bold text-primary">OR</span>
+                <div class="h-px bg-primary flex-1"></div>
+            </div>
+            <div class="flex flex-col gap-2">
+                <div class="mb-2">
+                    <input id="input-room-code" class="w-full border-b border-t-0 border-l-0 border-r-0 border-primary bg-transparent text-primary font-body-md text-[16px] py-3 px-4 focus:outline-none focus:border-b-2 focus:border-b-primary placeholder:text-primary/40 text-center tracking-widest uppercase" maxlength="4" placeholder="Enter 4-digit code" type="text">
+                </div>
+                <button id="btn-join" class="w-full border border-primary bg-transparent text-primary font-label-caps text-[14px] font-bold py-4 px-6 hover:bg-primary hover:text-on-primary transition-none tracking-widest">
+                    JOIN GAME
+                </button>
+            </div>
+        </section>
+    </main>
+
+
+    <!-- ================= 2. LOBBY SCREEN (Hidden by default) ================= -->
+    <main id="lobby-screen" class="hidden flex-grow w-full max-w-md mx-auto px-8 flex flex-col py-12">
+        <header class="w-full pb-8 flex justify-center items-center flex-col">
+            <!-- FIXED TITLE -->
+            <h1 class="font-headline-lg text-[24px] text-primary mb-6 font-['Press_Start_2P']" style="font-family: 'Press Start 2P', system-ui; text-rendering: pixelated;">PAC-MINDER</h1>
+            <div class="w-full h-px bg-primary mb-4"></div>
+            <div class="w-full flex justify-between">
+                <span class="font-label-caps text-[12px] font-bold uppercase tracking-widest">ROOM: <span id="display-room-code">----</span></span>
+            </div>
+        </header>
+
+        <div class="w-full mb-12">
+            <input id="input-player-name" class="w-full bg-transparent border border-primary text-primary font-body-md text-[16px] py-4 px-4 placeholder:text-primary/40 focus:outline-none focus:border-2 transition-none" placeholder="Player Name" type="text">
+        </div>
+        
+        <div class="w-full mb-6 text-center">
+            <span class="font-label-caps text-[12px] font-bold uppercase tracking-widest text-primary/70">Select Avatar</span>
+        </div>
+
+        <div id="character-grid" class="flex flex-col gap-4">
+            <!-- Character 1 -->
+            <label id="char-1" class="group flex items-center justify-between p-4 border border-primary cursor-pointer hover:bg-surface-container-low transition-none">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 border border-primary rounded-full overflow-hidden flex-shrink-0" id="avatar-container-1">
+                        <div class="w-full h-full bg-primary/10"></div> <!-- Placeholder for SVG -->
+                    </div>
+                    <span class="font-label-caps text-[14px] font-bold uppercase">MARCI 1</span>
+                </div>
+            </label>
+
+            <!-- Character 2 (Locked Example Class: .locked) -->
+            <label id="char-2" class="group flex items-center justify-between p-4 border border-primary cursor-pointer hover:bg-surface-container-low transition-none">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 border border-primary rounded-full overflow-hidden flex-shrink-0" id="avatar-container-2">
+                         <div class="w-full h-full bg-primary/10"></div> <!-- Placeholder for SVG -->
+                    </div>
+                    <span class="font-label-caps text-[14px] font-bold uppercase">MARCI 2</span>
+                </div>
+            </label>
+
+            <!-- Character 3 -->
+            <label id="char-3" class="group flex items-center justify-between p-4 border border-primary cursor-pointer hover:bg-surface-container-low transition-none">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 border border-primary rounded-full overflow-hidden flex-shrink-0" id="avatar-container-3">
+                         <div class="w-full h-full bg-primary/10"></div> <!-- Placeholder for SVG -->
+                    </div>
+                    <span class="font-label-caps text-[14px] font-bold uppercase">CSABA 1</span>
+                </div>
+            </label>
+        </div>
+
+        <footer class="w-full mt-auto pt-12">
+            <button id="btn-start-game" class="w-full border border-primary bg-primary text-on-primary px-8 py-6 font-label-caps text-[16px] font-bold uppercase hover:bg-background hover:text-primary transition-none tracking-widest">
+                [START GAME]
+            </button>
+        </footer>
+    </main>
+
+
+    <!-- ================= 3. GAME SCREEN (Hidden by default) ================= -->
+    <main id="game-screen" class="hidden w-full flex-grow flex flex-col items-center justify-center py-8 px-6">
+        <header class="text-center mb-8 flex flex-col items-center">
+            <div class="font-label-caps text-[14px] font-bold uppercase tracking-widest" id="score-display">BEST: 0000</div>
+            <div class="font-label-caps text-[11px] font-bold uppercase tracking-widest mb-2 opacity-60" id="life-display">LIFE: 0000</div>
+            <div class="font-['Press_Start_2P'] text-[16px] text-primary" id="timer-display" style="font-family: 'Press Start 2P', system-ui;">02:00</div>
+        </header>
+        
+        <!-- Game Canvas Container -->
+        <div id="canvas-container" class="w-full max-w-[400px] aspect-[3/4] border-2 border-primary bg-surface flex items-center justify-center relative overflow-hidden">
+            <!-- Architectural Grid -->
+            <div class="absolute inset-0 opacity-[0.05] pointer-events-none" style="background-image: linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px); background-size: 32px 32px;"></div>
+        </div>
+    </main>
+
+
+    <!-- ================= 4. LEADERBOARD SCREEN (Hidden by default) ================= -->
+    <main id="end-screen" class="hidden flex-grow flex flex-col pt-8 pb-12 px-4 max-w-4xl mx-auto w-full">
+        <div class="text-center mt-8 mb-8">
+            <h1 class="font-headline-lg text-[24px] text-primary mb-6 font-['Press_Start_2P']" style="font-family: 'Press Start 2P', system-ui; text-rendering: pixelated;">RESULTS</h1>
+        </div>
+        
+        <div class="w-full border-t border-primary mt-2">
+            <div class="grid grid-cols-4 py-4 px-2 font-label-caps text-[12px] font-bold uppercase text-primary border-b border-primary bg-surface-container-low">
+                <div class="col-span-1 text-left">RANK</div>
+                <div class="col-span-2 text-center">PLAYER</div>
+                <div class="col-span-1 text-right">SCORE</div>
+            </div>
+            
+            <div id="leaderboard-list" class="flex flex-col">
+                <!-- JS will inject rows here -->
+            </div>
+        </div>
+        
+        <div class="mt-auto pt-16 flex justify-center">
+            <button id="btn-new-game" class="border border-primary bg-background text-primary font-label-caps text-[14px] font-bold px-12 py-4 hover:bg-primary hover:text-on-primary transition-none uppercase tracking-widest">
+                MAIN MENU
+            </button>
+        </div>
+    </main>
+<script src="/socket.io/socket.io.js"></script>
+    <script src="game.js"></script>
+    <script src="socket-client.js"></script>
+</body>
+</html>

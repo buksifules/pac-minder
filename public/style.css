@@ -1,0 +1,62 @@
+/*
+ * style.css — supplementary to Tailwind CDN
+ * Contains only what Tailwind cannot express via utility classes:
+ *   • .locked  — brutalist diagonal strike-through for taken character slots
+ *   • avatar image helpers
+ *   • canvas pixel-rendering hint
+ * No base/reset rules — Tailwind's preflight handles those.
+ */
+
+/* ── Locked character slot ───────────────────────────────────────────────────
+ * Applied by JS when another player has claimed this character.
+ * The ::before pseudo creates a single 1 px diagonal black line across
+ * the entire card, in the Scandinavian Brutalist tradition.
+ * ────────────────────────────────────────────────────────────────────────── */
+.locked {
+  position: relative;    /* needed for the ::before overlay */
+  opacity: 0.38;
+  pointer-events: none;
+  cursor: not-allowed !important;
+  user-select: none;
+}
+
+.locked::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+
+  /*
+   * A hairline (1 px) diagonal from top-left → bottom-right.
+   * We use a linear-gradient with an infinitely thin colour stop
+   * so only a single pixel-wide stripe renders.
+   */
+  background: linear-gradient(
+    to bottom right,
+    transparent calc(50% - 0.5px),
+    #000        calc(50% - 0.5px),
+    #000        calc(50% + 0.5px),
+    transparent calc(50% + 0.5px)
+  );
+}
+
+/* ── Avatar images (lobby + leaderboard) ────────────────────────────────────
+ * Ensures SVG/img children of any rounded container fill it correctly.
+ * ────────────────────────────────────────────────────────────────────────── */
+.pm-avatar-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Inherit border-radius from the container (rounded-full) */
+  border-radius: inherit;
+}
+
+/* ── Game canvas ─────────────────────────────────────────────────────────────
+ * Forces nearest-neighbour scaling so pixel art stays crisp on HiDPI screens.
+ * ────────────────────────────────────────────────────────────────────────── */
+#pm-game-canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;   /* Firefox */
+}
