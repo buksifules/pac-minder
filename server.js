@@ -345,10 +345,15 @@ function checkCollisions(room) {
     const pr = Math.round(player.r), pc = Math.round(player.c);
 
     // ── Ghost collision (mercy zone: hitbox shrunk 15 %) ─────────────────────
-    for (const ghost of room.ghosts) {
+    for (let gi = 0; gi < room.ghosts.length; gi++) {
+      const ghost = room.ghosts[gi];
       const gr = Math.round(ghost.r), gc = Math.round(ghost.c);
       if (Math.abs(pr - gr) < 0.85 && Math.abs(pc - gc) < 0.85) {
-        if (ghost.frightened) {
+        if (ghost.frightened || player.powered) {
+          // Powered player eats ghost → respawn ghost in pen
+          const spawnPos = room.ghostSpawns[gi % room.ghostSpawns.length];
+          ghost.r = spawnPos.r;
+          ghost.c = spawnPos.c;
           ghost.frightened    = false;
           ghost.frightenTimer = 0;
           addScore(player, 200);

@@ -54,9 +54,89 @@
 }
 
 /* ── Game canvas ─────────────────────────────────────────────────────────────
- * Forces nearest-neighbour scaling so pixel art stays crisp on HiDPI screens.
+ * No border or clip-path on the container — the map blends into the page bg.
+ * position:absolute;inset:0 set by JS — fills the container content area.
+ * Nearest-neighbour scaling keeps pixel art crisp on HiDPI screens.
  * ────────────────────────────────────────────────────────────────────────── */
 #pm-game-canvas {
   image-rendering: pixelated;
   image-rendering: crisp-edges;   /* Firefox */
+}
+
+/* ── Pixel shape: no border, chamfered pixel corners ────────────────────────
+ * Shared by every interactive UI element outside the game canvas.
+ * border: none removes all Tailwind border utilities; clip-path defines shape.
+ * ────────────────────────────────────────────────────────────────────────── */
+#btn-host,
+#btn-join,
+#btn-start-game,
+#btn-new-game,
+#leaderboard-box,
+#input-player-name,
+#input-room-code,
+#char-1,
+#char-2,
+#char-3 {
+  border: none !important;
+  clip-path: polygon(
+    0 8px, 4px 8px, 4px 4px, 8px 4px, 8px 0,
+    calc(100% - 8px) 0, calc(100% - 8px) 4px,
+    calc(100% - 4px) 4px, calc(100% - 4px) 8px, 100% 8px,
+    100% calc(100% - 8px),
+    calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px),
+    calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%,
+    8px 100%, 8px calc(100% - 4px),
+    4px calc(100% - 4px), 4px calc(100% - 8px), 0 calc(100% - 8px)
+  );
+}
+
+/* ── btn-host: yellow ────────────────────────────────────────────────────── */
+#btn-host {
+  background: #EEBB2A !important;
+  color: #000000 !important;
+}
+
+/* ── btn-join: deep green → yellow on hover ─────────────────────────────── */
+#btn-join {
+  background: #25432B !important;
+  color: #f9f9f9 !important;
+}
+#btn-join:hover {
+  background: #EEBB2A !important;
+  color: #000000 !important;
+}
+
+/* ── Inputs: light gray fill, no border ─────────────────────────────────── */
+#input-player-name,
+#input-room-code {
+  background: #e8e8e8 !important;
+}
+
+/* ── Char cards: light gray default ─────────────────────────────────────── */
+#char-1,
+#char-2,
+#char-3 {
+  background: #e8e8e8;
+}
+
+/* ── btn-new-game: deep green → yellow on hover (matches btn-join) ───────── */
+#btn-new-game {
+  background: #25432B !important;
+  color: #f9f9f9 !important;
+}
+#btn-new-game:hover {
+  background: #EEBB2A !important;
+  color: #000000 !important;
+}
+
+/* ── Leaderboard box: light gray fill ────────────────────────────────────── */
+#leaderboard-box {
+  background: #e8e8e8;
+}
+
+/* ── Menu content above ambient canvas ───────────────────────────────────── */
+#menu-screen > header,
+#menu-screen > section {
+  position: relative;
+  z-index: 2;
 }

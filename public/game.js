@@ -9,7 +9,7 @@ const TILE_POWER = 3;
 // ─── Visual constants ─────────────────────────────────────────────────────────
 const BG_COLOR    = '#f9f9f9';
 const WALL_COLOR  = '#000000';
-const GRID_COLOR  = '#e8e8e8';
+const GRID_COLOR  = '#f9f9f9';
 const DOT_COLOR   = '#000000';
 const POWER_COLOR = '#000000';
 
@@ -61,7 +61,7 @@ const AudioManager = (() => {
 })();
 
 // ─── Tile size (+10 % scale factor) ──────────────────────────────────────────
-const SCALE_FACTOR = 1.10;
+const SCALE_FACTOR = 1.0;
 let TILE_PX    = 15;
 let mapOffsetX = 0;
 let mapOffsetY = 0;
@@ -128,6 +128,11 @@ function sizeCanvas() {
   canvas.width  = container.clientWidth;
   canvas.height = container.clientHeight;
   computeTileSize();
+}
+
+// ─── Name display helper ──────────────────────────────────────────────────────
+function cleanDisplayName(name) {
+  return String(name ?? '').replace(/\s*\d+\s*$/, '').trim();
 }
 
 // ─── HUD ──────────────────────────────────────────────────────────────────────
@@ -265,8 +270,6 @@ function render(ts) {
       if (maze[r][c] === TILE_WALL) {
         ctx.fillStyle = WALL_COLOR;
         ctx.fillRect(px, py, TILE_PX, TILE_PX);
-        ctx.fillStyle = 'rgba(255,255,255,0.04)';
-        ctx.fillRect(px + 1, py + 1, TILE_PX - 2, TILE_PX - 2);
       } else {
         ctx.fillStyle = GRID_COLOR;
         ctx.fillRect(px, py, TILE_PX, TILE_PX);
@@ -308,7 +311,7 @@ function render(ts) {
       ctx.font      = `bold ${Math.max(7, TILE_PX - 4)}px 'Space Grotesk', sans-serif`;
       ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(0,0,0,0.60)';
-      ctx.fillText(p.name ?? '', p.c * TILE_PX + TILE_PX / 2, p.r * TILE_PX - 3);
+      ctx.fillText(cleanDisplayName(p.name), p.c * TILE_PX + TILE_PX / 2, p.r * TILE_PX - 3);
       ctx.restore();
     }
   }

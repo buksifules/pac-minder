@@ -87,18 +87,16 @@ function updateCharacterSlots(takenCharacters) {
     // ── Reset all state ──────────────────────────────────────────────────
     el.querySelectorAll('.pm-taken-badge').forEach(n => n.remove());
     el.classList.remove('locked');
-    el.style.background    = '';
-    el.style.outline       = '';
-    el.style.outlineOffset = '';
+    el.style.background = '';
+    el.style.boxShadow  = '';
 
     const takenByMe    = takenMap[charName] === state.socket?.id;
     const takenByOther = !!takenMap[charName] && takenMap[charName] !== state.socket?.id;
 
     if (takenByMe) {
-      // ── SELECTED: inset outline + barely-there tint ─────────────────
-      el.style.background    = 'rgba(0,0,0,0.05)';
-      el.style.outline       = '2px solid #000';
-      el.style.outlineOffset = '-2px';
+      // ── SELECTED: yellow fill ────────────────────────────────────────
+      el.style.background = '#EEBB2A';
+      el.style.boxShadow  = '';
 
     } else if (takenByOther) {
       // ── LOCKED: .locked class handles opacity + diagonal strikethrough
@@ -221,7 +219,7 @@ function renderLeaderboard(leaderboard) {
 
     const avatarSrc = CHAR_SVG[entry.character] ?? '';
     const avatarHtml = avatarSrc
-      ? `<img src="${avatarSrc}" alt="${escHtml(entry.character)}"
+      ? `<img src="${avatarSrc}" alt="${escHtml(cleanDisplayName(entry.character))}"
               class="pm-avatar-img"
               style="width:2rem;height:2rem;border-radius:9999px;border:1px solid #000;flex-shrink:0;"/>`
       : `<div style="width:2rem;height:2rem;border-radius:9999px;border:1px solid #000;background:#e0e0e0;flex-shrink:0;"></div>`;
@@ -235,7 +233,7 @@ function renderLeaderboard(leaderboard) {
         ${avatarHtml}
         <span class="font-bold text-[13px] truncate"
               style="font-family:'Space Grotesk',sans-serif;">
-          ${escHtml(entry.name)}
+          ${escHtml(cleanDisplayName(entry.name))}
         </span>
       </div>
       <div class="col-span-1 text-right font-bold text-[12px]"
@@ -260,7 +258,7 @@ function runConfetti() {
   cv.height = window.innerHeight;
   const ctx = cv.getContext('2d');
 
-  const TONES = ['#000', '#333', '#666', '#999', '#ccc'];
+  const TONES = ['#EEBB2A', '#25432B'];
   const pieces = Array.from({ length: 90 }, () => ({
     x:         Math.random() * cv.width,
     y:         Math.random() * -cv.height * 0.5,
@@ -295,11 +293,170 @@ function runConfetti() {
 }
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
+function cleanDisplayName(name) {
+  return String(name ?? '').replace(/\s*\d+\s*$/, '').trim();
+}
+
 function escHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+
+// ─── Ambient menu animation ───────────────────────────────────────────────────
+/*
+ * Runs only while #menu-screen is visible.
+ * Canvas is position:fixed (full viewport) but lives inside #menu-ambient-bg,
+ * so it's automatically hidden when menu-screen gets display:none.
+ * Scene is rotated 35° for an isometric feel; characters drift and eat dots.
+ */
+const _ambient = {
+  rafId:     null,
+  canvas:    null,
+  resizeFn:  null,
+
+  start() {
+    this.stop();
+    const container = document.getElementById('menu-ambient-bg');
+    if (!container) return;
+
+    const cv = document.createElement('canvas');
+    cv.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:1;';
+    cv.width  = window.innerWidth;
+    cv.height = window.innerHeight;
+    container.innerHTML = '';
+    container.appendChild(cv);
+    this.canvas = cv;
+
+    this.resizeFn = () => { cv.width = window.innerWidth; cv.height = window.innerHeight; };
+    window.addEventListener('resize', this.resizeFn);
+
+    const ctx  = cv.getContext('2d');
+    const GRID = 42;
+    const R    = 18; // character radius
+
+    // Preload SVG assets — start animation only after all settle
+    const charKeys = ['Marci 1', 'Marci 2', 'Csaba 1'];
+    const charImgs = {};
+    const loadPromises = charKeys.map(key => new Promise(resolve => {
+      const img = new Image();
+      img.onload = img.onerror = resolve;
+      img.src = CHAR_SVG[key];
+      charImgs[key] = img;
+    }));
+
+    // Dot grid (individual dots respawn after being eaten)
+    const dots = [];
+    for (let x = GRID; x < cv.width  + GRID * 2; x += GRID)
+      for (let y = GRID; y < cv.height + GRID * 2; y += GRID)
+        if (Math.random() > 0.38) dots.push({ x, y, on: true });
+
+    // 3 characters with axis-aligned velocities (px/s)
+    const chars = [
+      { key: 'Marci 1', x: cv.width * 0.28, y: cv.height * 0.38, vx:  58, vy:   0, mouth: 0,   mDir:  1 },
+      { key: 'Marci 2', x: cv.width * 0.65, y: cv.height * 0.55, vx:   0, vy:  46, mouth: 0.7, mDir:  1 },
+      { key: 'Csaba 1', x: cv.width * 0.50, y: cv.height * 0.22, vx: -52, vy:   0, mouth: 1.1, mDir: -1 },
+    ];
+
+    let prev = null;
+    const frame = ts => {
+      if (!this.canvas) return;
+      this.rafId = requestAnimationFrame(frame);
+
+      const dt = Math.min(ts - (prev ?? ts), 80);
+      prev = ts;
+
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      ctx.save();
+      ctx.globalAlpha = 0.14;
+
+      // Rotate entire scene 35° around viewport centre
+      ctx.translate(cv.width / 2, cv.height / 2);
+      ctx.rotate(35 * Math.PI / 180);
+      ctx.translate(-cv.width / 2, -cv.height / 2);
+
+      // Draw dots
+      ctx.fillStyle = '#000';
+      for (const d of dots) {
+        if (!d.on) continue;
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Update and draw each character
+      for (const ch of chars) {
+        const spd = Math.hypot(ch.vx, ch.vy);
+
+        // Mouth oscillation
+        ch.mouth += dt * 0.007 * ch.mDir;
+        if (ch.mouth > 1.3 || ch.mouth < 0) ch.mDir *= -1;
+
+        // Move
+        ch.x += ch.vx * (dt / 1000);
+        ch.y += ch.vy * (dt / 1000);
+
+        // Wrap around viewport edges
+        if (ch.x < -R * 3) ch.x = cv.width  + R;
+        if (ch.x > cv.width  + R * 3) ch.x = -R;
+        if (ch.y < -R * 3) ch.y = cv.height + R;
+        if (ch.y > cv.height + R * 3) ch.y = -R;
+
+        // Random 90° turn (avg ~once per 4 s)
+        if (Math.random() < dt / 4000) {
+          const ang  = Math.atan2(ch.vy, ch.vx);
+          const turn = Math.random() < 0.5 ? Math.PI / 2 : -Math.PI / 2;
+          ch.vx = Math.round(Math.cos(ang + turn)) * spd;
+          ch.vy = Math.round(Math.sin(ang + turn)) * spd;
+        }
+
+        // Eat nearby dots
+        for (const d of dots) {
+          if (d.on && Math.hypot(ch.x - d.x, ch.y - d.y) < R + 4) {
+            d.on = false;
+            setTimeout(() => { d.on = true; }, 3500 + Math.random() * 5000);
+          }
+        }
+
+        // Draw: SVG clipped to the mouth-opening pac-shape
+        const ang = Math.atan2(ch.vy, ch.vx);
+        const mo  = (Math.sin(ch.mouth) * 0.5 + 0.5) * 0.28 + 0.03;
+        const img = charImgs[ch.key];
+
+        ctx.save();
+        ctx.translate(ch.x, ch.y);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, R, ang + mo * Math.PI, ang + (2 - mo) * Math.PI);
+        ctx.closePath();
+
+        if (img.complete && img.naturalWidth > 0) {
+          ctx.save();
+          ctx.clip();
+          ctx.drawImage(img, -R, -R, R * 2, R * 2);
+          ctx.restore();
+        } else {
+          ctx.fillStyle = '#000';
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      ctx.restore();
+    };
+
+    // Start RAF only after all images have settled (loaded or errored)
+    Promise.allSettled(loadPromises).then(() => {
+      if (this.canvas) this.rafId = requestAnimationFrame(frame);
+    });
+  },
+
+  stop() {
+    if (this.rafId)   { cancelAnimationFrame(this.rafId); this.rafId = null; }
+    if (this.resizeFn){ window.removeEventListener('resize', this.resizeFn); this.resizeFn = null; }
+    if (this.canvas)  { this.canvas.remove(); this.canvas = null; }
+  },
+};
 
 // ─── Reset on "New Game" ──────────────────────────────────────────────────────
 function resetClientState() {
@@ -315,9 +472,8 @@ function resetClientState() {
     if (!el) continue;
     el.querySelectorAll('.pm-taken-badge').forEach(n => n.remove());
     el.classList.remove('locked');
-    el.style.background    = '';
-    el.style.outline       = '';
-    el.style.outlineOffset = '';
+    el.style.background = '';
+    el.style.boxShadow  = '';
   }
 
   if (state.socket) { state.socket.disconnect(); state.socket = null; }
@@ -336,6 +492,7 @@ function connectSocket() {
     state.roomCode = code;
     state.isHost   = isHost;
     document.getElementById('display-room-code').textContent = code;
+    _ambient.stop();
     showScreen('lobby-screen');
     syncStartButton();
     state.socket.emit('player:join_lobby', { name: state.myName, code });
@@ -345,6 +502,7 @@ function connectSocket() {
     state.roomCode = code;
     state.isHost   = isHost;
     document.getElementById('display-room-code').textContent = code;
+    _ambient.stop();
     showScreen('lobby-screen');
     syncStartButton();
     state.socket.emit('player:join_lobby', { name: state.myName, code });
@@ -359,6 +517,17 @@ function connectSocket() {
       syncStartButton();
     }
     updateCharacterSlots(lobbyData.takenCharacters);
+
+    // Render player list with cleaned names
+    const playerListEl = document.getElementById('lobby-player-list');
+    if (playerListEl && lobbyData.players) {
+      playerListEl.innerHTML = '';
+      for (const p of lobbyData.players) {
+        const li = document.createElement('li');
+        li.textContent = cleanDisplayName(p.name);
+        playerListEl.appendChild(li);
+      }
+    }
   });
 
   state.socket.on('host:changed', ({ newHost }) => {
@@ -398,6 +567,9 @@ function connectSocket() {
 document.addEventListener('DOMContentLoaded', () => {
   // Inject SVG images into lobby avatar containers immediately
   injectLobbyAvatars();
+
+  // Start ambient animation immediately (menu is visible on load)
+  _ambient.start();
 
   connectSocket();
 
@@ -447,6 +619,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-new-game').addEventListener('click', () => {
     resetClientState();
     showScreen('menu-screen');
+    _ambient.start();
   });
 });
 

@@ -35,8 +35,9 @@
 <body class="bg-background text-primary font-body-md min-h-screen flex flex-col justify-between">
 
     <!-- ================= 1. MAIN MENU ================= -->
-    <main id="menu-screen" class="w-full max-w-[400px] mx-auto border-primary flex-grow flex flex-col justify-center py-20 px-6">
-        <header class="text-center mb-24">
+    <main id="menu-screen" class="relative w-full max-w-[400px] mx-auto border-primary flex-grow flex flex-col pt-12 pb-16 px-6">
+        <div id="menu-ambient-bg" class="absolute inset-0 pointer-events-none overflow-hidden" style="z-index:0;"></div>
+        <header class="text-center mb-16">
             <h1 class="font-headline-lg text-[24px] text-primary mb-2 font-['Press_Start_2P']" style="font-family: 'Press Start 2P', system-ui; text-rendering: pixelated;">PAC-MINDER</h1>
         </header>
         <section class="flex flex-col gap-12">
@@ -54,11 +55,14 @@
                 <div class="mb-2">
                     <input id="input-room-code" class="w-full border-b border-t-0 border-l-0 border-r-0 border-primary bg-transparent text-primary font-body-md text-[16px] py-3 px-4 focus:outline-none focus:border-b-2 focus:border-b-primary placeholder:text-primary/40 text-center tracking-widest uppercase" maxlength="4" placeholder="Enter 4-digit code" type="text">
                 </div>
-                <button id="btn-join" class="w-full border border-primary bg-transparent text-primary font-label-caps text-[14px] font-bold py-4 px-6 hover:bg-primary hover:text-on-primary transition-none tracking-widest">
+                <button id="btn-join" class="w-full border border-[#ccc] bg-[#ccc] text-primary font-label-caps text-[14px] font-bold py-4 px-6 hover:bg-primary hover:border-primary hover:text-on-primary transition-none tracking-widest">
                     JOIN GAME
                 </button>
             </div>
         </section>
+        <footer class="absolute bottom-5 left-0 right-0 text-center opacity-30" style="z-index:0;">
+            <p class="font-['Press_Start_2P'] text-[10px] tracking-tight" style="font-family:'Press Start 2P',system-ui;">tybi_games // 1.31</p>
+        </footer>
     </main>
 
 
@@ -78,7 +82,7 @@
         </div>
         
         <div class="w-full mb-6 text-center">
-            <span class="font-label-caps text-[12px] font-bold uppercase tracking-widest text-primary/70">Select Avatar</span>
+            <span class="font-label-caps text-[12px] font-bold uppercase tracking-widest text-primary/70">CHOOSE A CHARACTER</span>
         </div>
 
         <div id="character-grid" class="flex flex-col gap-4">
@@ -88,7 +92,7 @@
                     <div class="w-12 h-12 border border-primary rounded-full overflow-hidden flex-shrink-0" id="avatar-container-1">
                         <div class="w-full h-full bg-primary/10"></div> <!-- Placeholder for SVG -->
                     </div>
-                    <span class="font-label-caps text-[14px] font-bold uppercase">MARCI 1</span>
+                    <span class="font-label-caps text-[14px] font-bold uppercase">MARCI</span>
                 </div>
             </label>
 
@@ -98,7 +102,7 @@
                     <div class="w-12 h-12 border border-primary rounded-full overflow-hidden flex-shrink-0" id="avatar-container-2">
                          <div class="w-full h-full bg-primary/10"></div> <!-- Placeholder for SVG -->
                     </div>
-                    <span class="font-label-caps text-[14px] font-bold uppercase">MARCI 2</span>
+                    <span class="font-label-caps text-[14px] font-bold uppercase">MARCI</span>
                 </div>
             </label>
 
@@ -108,7 +112,7 @@
                     <div class="w-12 h-12 border border-primary rounded-full overflow-hidden flex-shrink-0" id="avatar-container-3">
                          <div class="w-full h-full bg-primary/10"></div> <!-- Placeholder for SVG -->
                     </div>
-                    <span class="font-label-caps text-[14px] font-bold uppercase">CSABA 1</span>
+                    <span class="font-label-caps text-[14px] font-bold uppercase">CSABA</span>
                 </div>
             </label>
         </div>
@@ -130,33 +134,30 @@
         </header>
         
         <!-- Game Canvas Container -->
-        <div id="canvas-container" class="w-full max-w-[400px] aspect-[3/4] border-2 border-primary bg-surface flex items-center justify-center relative overflow-hidden">
-            <!-- Architectural Grid -->
-            <div class="absolute inset-0 opacity-[0.05] pointer-events-none" style="background-image: linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px); background-size: 32px 32px;"></div>
-        </div>
+        <div id="canvas-container" class="w-full max-w-[400px] aspect-[3/4] relative overflow-hidden"></div>
     </main>
 
 
     <!-- ================= 4. LEADERBOARD SCREEN (Hidden by default) ================= -->
-    <main id="end-screen" class="hidden flex-grow flex flex-col pt-8 pb-12 px-4 max-w-4xl mx-auto w-full">
-        <div class="text-center mt-8 mb-8">
+    <main id="end-screen" class="hidden flex-grow flex flex-col pt-12 pb-12 px-4 max-w-4xl mx-auto w-full">
+        <div class="text-center mb-8">
             <h1 class="font-headline-lg text-[24px] text-primary mb-6 font-['Press_Start_2P']" style="font-family: 'Press Start 2P', system-ui; text-rendering: pixelated;">RESULTS</h1>
         </div>
         
-        <div class="w-full border-t border-primary mt-2">
-            <div class="grid grid-cols-4 py-4 px-2 font-label-caps text-[12px] font-bold uppercase text-primary border-b border-primary bg-surface-container-low">
+        <div id="leaderboard-box" class="w-full mt-2 overflow-hidden">
+            <div class="grid grid-cols-4 py-4 px-2 font-label-caps text-[12px] font-bold uppercase text-primary border-b border-primary/20 bg-black/5">
                 <div class="col-span-1 text-left">RANK</div>
                 <div class="col-span-2 text-center">PLAYER</div>
                 <div class="col-span-1 text-right">SCORE</div>
             </div>
-            
+
             <div id="leaderboard-list" class="flex flex-col">
                 <!-- JS will inject rows here -->
             </div>
         </div>
-        
+
         <div class="mt-auto pt-16 flex justify-center">
-            <button id="btn-new-game" class="border border-primary bg-background text-primary font-label-caps text-[14px] font-bold px-12 py-4 hover:bg-primary hover:text-on-primary transition-none uppercase tracking-widest">
+            <button id="btn-new-game" class="font-label-caps text-[14px] font-bold px-12 py-4 transition-none uppercase tracking-widest">
                 MAIN MENU
             </button>
         </div>
