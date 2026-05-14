@@ -125,8 +125,8 @@ function bootstrapCanvas() {
 function sizeCanvas() {
   const container = document.getElementById('canvas-container');
   if (!container || !canvas) return;
-  canvas.width  = container.clientWidth;
-  canvas.height = container.clientHeight;
+  canvas.width  = container.offsetWidth;
+  canvas.height = container.offsetHeight;
   computeTileSize();
 }
 
@@ -592,6 +592,8 @@ window.onPlayerHit = function({ currentScore, bestScore, r, c }) {
     me.dir = [0, 0];
     me.pendingDir = null;
   }
+  mouthAngle = 0.5;
+  mouthDir   = 1;
   setScoreHUD(myBestScore, myCurrentScore);
   AudioManager.death();
 };
