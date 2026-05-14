@@ -35,7 +35,7 @@
 <body class="bg-background text-primary font-body-md min-h-screen flex flex-col justify-between">
 
     <!-- ================= 1. MAIN MENU ================= -->
-    <main id="menu-screen" class="relative w-full max-w-[400px] mx-auto border-primary flex-grow flex flex-col pt-12 pb-16 px-6">
+    <main id="menu-screen" class="relative flex-grow flex flex-col pt-12 pb-16">
         <div id="menu-ambient-bg" class="absolute inset-0 pointer-events-none overflow-hidden" style="z-index:0;"></div>
         <header class="text-center mb-16">
             <h1 class="font-headline-lg text-[24px] text-primary mb-2 font-['Press_Start_2P']" style="font-family: 'Press Start 2P', system-ui; text-rendering: pixelated;">PAC-MINDER</h1>
@@ -60,14 +60,14 @@
                 </button>
             </div>
             <div class="mt-4 text-center opacity-40">
-                <p class="font-['Press_Start_2P'] text-[10px]" style="font-family:'Press Start 2P',system-ui;">TYBI GAMES // 1.33</p>
+                <p class="font-['Press_Start_2P'] text-[10px]" style="font-family:'Press Start 2P',system-ui;">TYBI GAMES // 1.36</p>
             </div>
         </section>
     </main>
 
 
     <!-- ================= 2. LOBBY SCREEN (Hidden by default) ================= -->
-    <main id="lobby-screen" class="hidden flex-grow w-full max-w-md mx-auto px-8 flex flex-col py-12">
+    <main id="lobby-screen" class="hidden flex-grow flex flex-col py-12">
         <header class="w-full pb-8 flex justify-center items-center flex-col">
             <!-- FIXED TITLE -->
             <h1 class="font-headline-lg text-[24px] text-primary mb-6 font-['Press_Start_2P']" style="font-family: 'Press Start 2P', system-ui; text-rendering: pixelated;">PAC-MINDER</h1>
@@ -126,7 +126,7 @@
 
 
     <!-- ================= 3. GAME SCREEN (Hidden by default) ================= -->
-    <main id="game-screen" class="hidden w-full flex-grow flex flex-col items-center justify-center py-8 px-6">
+    <main id="game-screen" class="hidden flex-grow flex flex-col items-center justify-center py-8">
         <header class="text-center mb-8 flex flex-col items-center">
             <div class="font-label-caps text-[14px] font-bold uppercase tracking-widest" id="score-display">BEST: 0000</div>
             <div class="font-label-caps text-[11px] font-bold uppercase tracking-widest mb-2 opacity-60" id="life-display">LIFE: 0000</div>
@@ -134,12 +134,12 @@
         </header>
         
         <!-- Game Canvas Container -->
-        <div id="canvas-container" class="w-full max-w-[min(500px,calc(100vw-40px))] mx-auto aspect-[3/4] relative overflow-hidden"></div>
+        <div id="canvas-container" class="w-full aspect-[3/4] relative overflow-hidden"></div>
     </main>
 
 
     <!-- ================= 4. LEADERBOARD SCREEN (Hidden by default) ================= -->
-    <main id="end-screen" class="hidden flex-grow flex flex-col pt-12 pb-12 px-4 max-w-4xl mx-auto w-full">
+    <main id="end-screen" class="hidden flex-grow flex flex-col pt-12 pb-12">
         <div class="text-center mb-8">
             <h1 class="font-headline-lg text-[24px] text-primary mb-6 font-['Press_Start_2P']" style="font-family: 'Press Start 2P', system-ui; text-rendering: pixelated;">RESULTS</h1>
         </div>

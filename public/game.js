@@ -68,8 +68,15 @@ let mapOffsetY = 0;
 
 function computeTileSize() {
   if (!canvas || !gameState) return;
+  // Cap by viewport height so the map never overflows on short desktop windows.
+  // 160px covers the HUD + vertical margins; clamped to 200px minimum.
+  const availH = Math.max(200, window.innerHeight - 160);
   TILE_PX = Math.max(1, Math.floor(
-    Math.min(canvas.width / gameState.cols, canvas.height / gameState.rows) * SCALE_FACTOR
+    Math.min(
+      canvas.width  / gameState.cols,
+      canvas.height / gameState.rows,
+      availH        / gameState.rows
+    ) * SCALE_FACTOR
   ));
   mapOffsetX = Math.floor((canvas.width  - gameState.cols * TILE_PX) / 2);
   mapOffsetY = Math.floor((canvas.height - gameState.rows * TILE_PX) / 2);

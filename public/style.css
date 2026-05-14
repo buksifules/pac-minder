@@ -140,3 +140,20 @@
   position: relative;
   z-index: 2;
 }
+
+/* ── Unified layout column (all screens share identical width) ────────────
+ * width: calc(100% - 40px) gives 20 px margin on each side on narrow viewports.
+ * max-width: 420px caps the column on wider screens / desktop.
+ * These ID-selector rules override Tailwind width / max-width / padding utils.
+ * ────────────────────────────────────────────────────────────────────────── */
+#menu-screen,
+#lobby-screen,
+#game-screen,
+#end-screen {
+  width: calc(100% - 40px);
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 0;
+  padding-right: 0;
+}
